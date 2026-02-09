@@ -1,0 +1,51 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Poppins:ital,wght@0,300;0,400;0,800;0,900;1,300;1,800;1,900&display=swap');
+
+@import "tailwindcss";
+
+*{
+  font-family: 'Outfit', sans-serif;
+  
+}
+
+@theme{
+  --color-primary: #4fbf8b;
+  --color-primary-dull: #44ae7c;
+}
+
+.no-scrollbar::-webkit-scrollbar{
+display: none;
+}
+@keyframes typing {
+  from {
+    width: 0;
+  }
+  to {
+    width: 100%;
+  }
+}
+
+
+.animate-typing {
+  display: inline-block;
+ 
+  white-space: nowrap;
+  overflow: hidden;
+  width: 0;
+  animation: typing 3s steps(30) infinite;
+}
+
+
+
+#scale:hover{
+  transform: scale(1.09);
+  transition: all 0.2s ease-in-out;
+  border-radius: 20px;
+  box-shadow: 5px 5px 10px rgba(15, 15, 15, 0.5);
+}
+#nav-scale:hover{
+  transform: scale(1.1);
+  transition: all 0.2s ease-in-out;
+  color: #4fbf8b;
+
+  
+}
