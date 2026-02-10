@@ -12,22 +12,52 @@ const MyOrders = () => {
   const [loading, setLoading] = useState(false); 
   const { currency, user } = useAppContext();
 
-  const fetchOrders = async () => {
-    try {
-      setLoading(true); 
-      const { data } = await axios.get("/order/user");
-      if (data?.success) {
-        setMyOrders(data.orders);
-        // console.log("orders",formatDistanceToNow(new Date(data.orders[0].createdAt), { addSuffix: true }));   
-      } else {
-        console.error(data.message);
-      }
-    } catch (error) {
-      console.error("Error fetching orders:", error);
-    } finally {
-      setLoading(false); 
-    }
-  };
+const fetchOrders = async () => {
+  try {
+    setLoading(true);
+
+    // 1️⃣ Fetch user orders
+    const { data: ordersData } = await axios.get("/order/user");
+    if (!ordersData?.orders) return setMyOrders([]);
+
+    const orders = ordersData.orders;
+
+    // 2️⃣ For each order, fetch product details
+    const enrichedOrders = await Promise.all(
+      orders.map(async order => {
+        const productsWithDetails = await Promise.all(
+          order.products.map(async item => {
+            try {
+              const { data: productData } = await axios.get(
+                `/products/${item.category}/${item.price}/${item.productId}`
+              );
+              return {
+                ...item,
+                product: productData
+              };
+            } catch (err) {
+              console.error(`Failed to fetch product ${item.productId}`, err);
+              return { ...item, product: {} }; // fallback
+            }
+          })
+        );
+        console.log('productsWithDetails',productsWithDetails)
+
+        return {
+          ...order,
+          products: productsWithDetails
+        };
+      })
+    );
+
+    setMyOrders(enrichedOrders);
+  } catch (error) {
+    console.error("Error fetching orders:", error);
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   useEffect(() => {
     if (user) {
@@ -72,13 +102,13 @@ const MyOrders = () => {
       {myOrders.map((order, index) => (
         <div key={index} className="border border-gray-300 rounded-md p-4 mb-10 max-w-4xl mx-auto">
           <div className="flex justify-between items-center text-gray-500 font-medium text-sm max-md:flex-col max-md:items-start max-md:gap-2">
-            <span>Order Id: {order._id}</span>
-            <span>Payment: {order.paymentType}</span>
-            <span>Total Amount: {currency}{order.amount}</span>
-            <span>{formatDistanceToNow(new Date(order.createdAt), { addSuffix: true })}</span>
+            <span>Order Id: {order.orderId}</span>
+            <span>Payment: {order.paymentMethod}</span>
+            <span>Total Amount: {currency}{order.totalPrice}</span>
+            <span>{formatDistanceToNow(new Date(order.updatedAt), { addSuffix: true })}</span>
           </div>
 
-          {order.items.map((item, idx) => (
+          {order.products.map((item, idx) => (
             <div key={idx} className="flex flex-col md:flex-row md:items-center justify-between gap-6 mt-6 p-4 rounded bg-gray-50">
               <div className="flex items-center gap-4">
                 <div className="bg-primary/10 p-3 rounded-lg">
@@ -86,18 +116,18 @@ const MyOrders = () => {
                 </div>
                 <div>
                   <h3 className="text-lg font-semibold">{item.product.name}</h3>
-                  <p className="text-xs text-gray-500">Category: {item.product.category}</p>
+                  <p className="text-xs text-gray-500">Category: {item.category}</p>
                 </div>
               </div>
 
               <div className="flex flex-col gap-1 justify-center md:ml-8 mb-4 md:mb-0 opacity-50">
                 <p>Quantity: {item.quantity || 1}</p>
                 <p>Status: {order.status}</p>
-                <p>Date: {new Date(order.createdAt).toLocaleDateString('en-IN')}</p>
+                <p>Date: {new Date(order.updatedAt).toLocaleDateString('en-IN')}</p>
               </div>
 
               <div className="text-primary text-lg font-bold">
-                Amount: {currency}{item.product.offerPrice * item.quantity}
+                Amount: {currency}{item.price * item.quantity}
               </div>    
             </div>
           ))}

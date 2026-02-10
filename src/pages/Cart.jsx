@@ -60,47 +60,77 @@ const Cart = () => {
 
 
   // Place order
-  const placeOrder = async () => {
-    if (!selectedAddress) {
-      toast.error("Please select an address");
-      return;
-    }
+const placeOrder = async () => {
+  if (!selectedAddress) {
+    toast.error("Please select an address");
+    return;
+  }
 
-    const items = cartArray.map((item) => ({
-      productId: item.productId,
-      quantity: item.quantity,
-    }));
+  if (!cartArray.length) {
+    toast.error("Your cart is empty");
+    return;
+  }
 
-    try {
-      if (paymentOption === "COD") {
-        const { data } = await axios.post("/order/cod", {
-          userId: user._id,
-          items,
-          addressId: selectedAddress._id,
-        });
+  // Prepare products for order payload
+  const products = cartArray.map((item) => ({
+    productId: item.productId,
+    quantity: item.quantity,
+    category: item.category,
+    price: item.price,
+  }));
 
-        if (data?.success) {
-          toast.success(data.message);
-          setCartItems({});
-          navigate("/my-orders");
-        } else toast.error(data.message);
-      } else {
-        const { data } = await axios.post("/order/stripe", {
-          userId: user._id,
-          items,
-          addressId: selectedAddress._id,
-        });
+  const totalPrice = cartArray.reduce(
+    (sum, item) => sum + item.quantity * item.price,
+    0
+  );
 
-        if (data?.success) {
-          window.location.replace(data.url);
-          setCartItems({});
-        } else toast.error(data.message);
+  try {
+    let data;
+
+    if (paymentOption === "COD") {
+      // Place COD order
+      ({ data } = await axios.post("/order/cod", {
+        products,
+        totalPrice: getCartAmount() + getCartAmount() * 0.02 + 50,
+        addressId: selectedAddress.addressId,
+      }));
+    } else {
+      // Online payment via Stripe
+      ({ data } = await axios.post("/order/stripe", {
+        userId: user._id,
+        items: products,
+        addressId: selectedAddress.addressId,
+      }));
+
+      // Redirect to payment page
+      if (data?.success) {
+        window.location.replace(data.url);
+        return; // Don't clear cart yet, wait for payment confirmation
       }
-    } catch (error) {
-      toast.error("Network error. Refreshing page...");
-      window.location.reload();
     }
-  };
+
+    if (data) {
+      toast.success(data.message || "Order placed successfully");
+
+      // Reset cart on backend with correct CartInput payload
+      await axios.put("/cart", {
+        products: [],
+        totalPrice: 0,
+      });
+
+      // Reset frontend cart state
+      setCartItems({});
+
+      navigate("/my-orders");
+    } else {
+      toast.error(data.message || "Something went wrong");
+    }
+  } catch (error) {
+    console.error("Error placing order:", error);
+    toast.error("Network error. Please try again.");
+  }
+};
+
     const tempUser = {
     _id: "testuser123",
     name: "Test User",

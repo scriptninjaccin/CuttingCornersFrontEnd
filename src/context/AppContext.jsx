@@ -7,14 +7,18 @@ import axios from 'axios'
 
 axios.defaults.baseURL = import.meta.env.VITE_BACKEND_URL;
 axios.defaults.withCredentials = true;
-axios.defaults.headers.common['Authorization'] = 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c2VyMTIzIiwiZW1haWwiOiJ0ZXN0QGV4YW1wbGUuY29tIiwiaWF0IjoxNzcwNTc2NDk0LCJleHAiOjE3NzA2MTk2OTR9.y4SVoh3wZ2NV4OrULdOdy7GXs2hVn3KS9Sa_l_yjcTI';
+axios.defaults.headers.common['Authorization'] = 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c2VyMTIzIiwiZW1haWwiOiJ0ZXN0QGV4YW1wbGUuY29tIiwiaWF0IjoxNzcwNjg5NDAxLCJleHAiOjE3NzQyODk0MDF9.SaSlSq-xxYwMSf2TQmFtL5963atSlnZcZyqccfiA0Tc';
 export const AppContext = createContext();
 
 export const AppContextProvider = ({ children }) => {
 
     const currency = import.meta.env.VITE_CURRENCY;
     const navigate = useNavigate();
-    const [user, setUser] = useState(null);
+    const [user, setUser] = useState({
+  email: "test@example.com",
+  name: "Test User",
+  id: "user123",
+});
     const [isSeller, setIsSeller] = useState(false);
     const [showUserLogin, setShowUserLogin] = useState(false);
     const [products, setProducts] = useState([]);

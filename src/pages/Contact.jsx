@@ -15,7 +15,7 @@ const Contact = () => {
     console.log('Form submitted');
     console.log('Message:', message);
     try {
-      const { data } = await axios.post('/contact/send',
+      const { data } = await axios.post('/contact',
         {
           name: user.name,
           email: user.email,
