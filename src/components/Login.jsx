@@ -25,6 +25,15 @@ const Login = ({ closeModal }) => {
   } = useAuth();
   const { setShowUserLogin } = useAppContext();
 
+  useEffect(() => {
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    return () => {
+      document.body.style.overflow = originalOverflow;
+    };
+  }, []);
+
   const closeLoginModal = () => {
     if (typeof closeModal === "function") {
       closeModal();
@@ -138,6 +147,15 @@ const Login = ({ closeModal }) => {
   return (
     <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 p-4 overflow-y-auto">
       <div className="relative z-[10000] bg-white p-8 rounded shadow-md w-80 max-w-full">
+        <button
+          type="button"
+          onClick={closeLoginModal}
+          className="absolute top-3 right-3 text-gray-500 hover:text-gray-800 text-xl leading-none"
+          aria-label="Close login modal"
+        >
+          x
+        </button>
+
         <h2 className="text-xl font-bold mb-4">
           {mode === "login" && "Login"}
           {mode === "register" && "Sign Up"}
@@ -294,10 +312,17 @@ const Login = ({ closeModal }) => {
             </>
           )}
         </p>
+
+        <button
+          type="button"
+          onClick={closeLoginModal}
+          className="mt-3 w-full text-sm text-gray-600 hover:text-gray-800 underline"
+        >
+          Continue Browsing
+        </button>
       </div>
     </div>
   );
 };
 
 export default Login;
-
