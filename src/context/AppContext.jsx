@@ -8,6 +8,22 @@ import { useAuth } from "./AuthContext";
 axios.defaults.baseURL = import.meta.env.VITE_BACKEND_URL;
 axios.defaults.withCredentials = true;
 
+const GUEST_CART_STORAGE_KEY = "cutting-corners-guest-cart";
+
+const readGuestCart = () => {
+  if (typeof window === "undefined") return {};
+
+  try {
+    const raw = localStorage.getItem(GUEST_CART_STORAGE_KEY);
+    if (!raw) return {};
+
+    const parsed = JSON.parse(raw);
+    return parsed && typeof parsed === "object" ? parsed : {};
+  } catch {
+    return {};
+  }
+};
+
 let isAxiosAuthInterceptorAttached = false;
 
 if (!isAxiosAuthInterceptorAttached) {
@@ -49,7 +65,7 @@ export const AppContextProvider = ({ children }) => {
   const [isSeller, setIsSeller] = useState(false);
   const [showUserLogin, setShowUserLogin] = useState(false);
   const [products, setProducts] = useState([]);
-  const [cartItems, setCartItems] = useState({});
+  const [cartItems, setCartItems] = useState(() => readGuestCart());
   const [searchQuery, setSearchQuery] = useState("");
 
   const getAuthFallbackUser = () => {
@@ -126,11 +142,11 @@ export const AppContextProvider = ({ children }) => {
   const fetchCartFromBackend = async () => {
     try {
       const { data } = await axios.get("/cart/");
-      const newCartItems = {};
+      const backendCart = {};
 
       data.products.forEach((item) => {
         if (item.productId) {
-          newCartItems[item.productId] = {
+          backendCart[item.productId] = {
             quantity: item.quantity,
             price: item.price,
             category: item.category,
@@ -138,7 +154,15 @@ export const AppContextProvider = ({ children }) => {
         }
       });
 
-      setCartItems(newCartItems);
+      const hasBackendItems = Object.keys(backendCart).length > 0;
+      if (hasBackendItems) {
+        setCartItems(backendCart);
+      } else {
+        const guestCart = readGuestCart();
+        if (Object.keys(guestCart).length > 0) {
+          setCartItems(guestCart);
+        }
+      }
     } catch (err) {
       console.error("Error fetching cart:", err);
     }
@@ -147,6 +171,14 @@ export const AppContextProvider = ({ children }) => {
   useEffect(() => {
     if (user) fetchCartFromBackend();
   }, [user]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    if (!user) {
+      localStorage.setItem(GUEST_CART_STORAGE_KEY, JSON.stringify(cartItems));
+    }
+  }, [cartItems, user]);
 
   const fetchProducts = async () => {
     try {
@@ -206,7 +238,6 @@ export const AppContextProvider = ({ children }) => {
 
     if (!authUser) {
       setUser(null);
-      setCartItems({});
       return;
     }
 
@@ -231,7 +262,7 @@ export const AppContextProvider = ({ children }) => {
     if (user) {
       updateCart();
     }
-  }, [cartItems]);
+  }, [cartItems, user]);
 
   const value = {
     navigate,

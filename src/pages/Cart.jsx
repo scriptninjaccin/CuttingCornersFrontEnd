@@ -3,7 +3,6 @@ import { useAppContext } from "../context/AppContext";
 import { assets } from "../assets/assets";
 import toast from "react-hot-toast";
 import axios from "axios";
-import Login from "../components/Login";
 
 const Cart = () => {
   const [showAddress, setShowAddress] = useState(false);
@@ -15,7 +14,6 @@ const Cart = () => {
   const {
     cartItems,
     user,
-    setUser,
     currency,
     removeFromCart,
     getCartCount,
@@ -23,9 +21,9 @@ const Cart = () => {
     navigate,
     updateCartItem,
     setCartItems,
+    setShowUserLogin,
   } = useAppContext();
 
-  // Fetch product details
   const getCart = async () => {
     const tempArray = [];
     for (let productId in cartItems) {
@@ -42,9 +40,13 @@ const Cart = () => {
     setCartArray(tempArray);
   };
 
-  // Fetch addresses
   const getUserAddress = async () => {
-    if (!user) return;
+    if (!user) {
+      setAddresses([]);
+      setSelectedAddress(null);
+      return;
+    }
+
     try {
       const { data } = await axios.get(`/address/query`);
       if (data?.addresses && data.addresses.length > 0) {
@@ -54,20 +56,26 @@ const Cart = () => {
         setAddresses([]);
         setSelectedAddress(null);
       }
-    } catch (error) {
-      console.log("Please login first to fetch addresses");
+    } catch {
+      setAddresses([]);
+      setSelectedAddress(null);
     }
   };
 
-  // Place order
   const placeOrder = async () => {
-    if (!selectedAddress) {
-      toast.error("Please select an address");
+    if (!user) {
+      toast.error("Please login to place order");
+      setShowUserLogin(true);
       return;
     }
 
     if (!cartArray.length) {
       toast.error("Your cart is empty");
+      return;
+    }
+
+    if (!selectedAddress) {
+      toast.error("Please select an address");
       return;
     }
 
@@ -126,23 +134,12 @@ const Cart = () => {
     getUserAddress();
   }, [user]);
 
-  if (!user) {
-    return (
-      <div className="flex justify-center items-center h-screen">
-        <Login />
-      </div>
-    );
-  }
-
   return (
     <div className="flex flex-col md:flex-row mt-16 gap-6">
-      {/* Cart Items */}
       <div className="flex-1 max-w-4xl">
         <h1 className="text-3xl font-medium mb-6">
           Shopping Cart{" "}
-          <span className="text-sm text-primary">
-            {getCartCount()} Items
-          </span>
+          <span className="text-sm text-primary">{getCartCount()} Items</span>
         </h1>
 
         <div className="grid grid-cols-[2fr_1fr_1fr] text-gray-500 text-base font-medium pb-3">
@@ -208,37 +205,39 @@ const Cart = () => {
         ))}
       </div>
 
-      {/* Right Panel */}
       <div className="max-w-[360px] w-full">
-
         {addresses.length === 0 ? (
-          // 🟢 No Address UI
           <div className="bg-white border border-gray-300 p-6 text-center">
             <h2 className="text-xl font-medium mb-4">
-              No Address Found
+              {user ? "No Address Found" : "Login Required For Checkout"}
             </h2>
             <p className="text-gray-500 mb-6">
-              Please add a delivery address to continue with your order.
+              {user
+                ? "Please add a delivery address to continue with your order."
+                : "You can keep adding items. Login only when you are ready to place the order."}
             </p>
 
             <button
-              onClick={() => navigate("/add-address")}
+              onClick={() => {
+                if (!user) {
+                  setShowUserLogin(true);
+                  return;
+                }
+
+                navigate("/add-address");
+              }}
               className="w-full py-3 bg-primary text-white rounded hover:bg-primary/90 transition"
             >
-              Add New Address
+              {user ? "Add New Address" : "Login To Continue"}
             </button>
           </div>
         ) : (
-          // 🔵 Order Summary
           <div className="bg-gray-100/40 p-5 border border-gray-300/70">
             <h2 className="text-xl font-medium">Order Summary</h2>
             <hr className="border-gray-300 my-5" />
 
-            {/* Address */}
             <div className="mb-6">
-              <p className="text-sm font-medium uppercase">
-                Delivery Address
-              </p>
+              <p className="text-sm font-medium uppercase">Delivery Address</p>
 
               <div className="flex justify-between items-start mt-2">
                 <p className="text-gray-500">
@@ -277,9 +276,7 @@ const Cart = () => {
                 </div>
               )}
 
-              <p className="text-sm font-medium uppercase mt-6">
-                Payment Method
-              </p>
+              <p className="text-sm font-medium uppercase mt-6">Payment Method</p>
 
               <select
                 onChange={(e) => setPaymentOption(e.target.value)}
@@ -292,7 +289,6 @@ const Cart = () => {
 
             <hr />
 
-            {/* Pricing */}
             <div className="mt-4 space-y-2">
               <p className="flex justify-between">
                 <span>Price</span>
@@ -301,16 +297,12 @@ const Cart = () => {
 
               <p className="flex justify-between">
                 <span>Tax (2%)</span>
-                <span>
-                  {currency}{(getCartAmount() * 0.02).toFixed(2)}
-                </span>
+                <span>{currency}{(getCartAmount() * 0.02).toFixed(2)}</span>
               </p>
 
               <p className="flex justify-between text-lg font-medium">
                 <span>Total</span>
-                <span>
-                  {currency}{(getCartAmount() * 1.02).toFixed(2)}
-                </span>
+                <span>{currency}{(getCartAmount() * 1.02).toFixed(2)}</span>
               </p>
             </div>
 
@@ -326,7 +318,6 @@ const Cart = () => {
             )}
           </div>
         )}
-
       </div>
     </div>
   );

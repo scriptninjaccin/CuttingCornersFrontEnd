@@ -31,24 +31,7 @@ const App = () => {
   const location = useLocation();
   const isSellerPath = location.pathname.includes('/seller');
   const { showUserLogin, isSeller } = useAppContext();
-  const { user: authUser, loading: authLoading } = useAuth();
-
-  if (authLoading && !isSellerPath) {
-    return (
-      <div className='min-h-screen flex items-center justify-center bg-white text-gray-700'>
-        <p>Checking login...</p>
-      </div>
-    );
-  }
-
-  if (!authUser && !isSellerPath) {
-    return (
-      <div className='text-default min-h-screen text-gray-700 bg-white'>
-        <Login />
-        <Toaster toastOptions={{ duration: 600 }} />
-      </div>
-    );
-  }
+  const { user: authUser } = useAuth();
 
   return (
     <div className='text-default min-h-screen text-gray-700 bg-white'>
