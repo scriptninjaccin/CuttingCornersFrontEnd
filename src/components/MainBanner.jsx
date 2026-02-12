@@ -15,7 +15,7 @@ const MainBanner = () => {
             <img src={assets.main_banner_bg_sm} alt="Main Banner" className="w-full md:hidden" />
 
             <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center text-white px-4 sm:px-6 md:px-12 w-full">
-                <h1 className="text-3xl sm:text-4xl md:text-6xl font-bold mb-6 leading-tight text-primary-dull animate-typing drop-shadow-md">
+                <h1 className="text-3xl sm:text-4xl md:text-6xl font-bold mb-6 leading-tight text-white hero-title-outline animate-typing drop-shadow-md">
                     Discover Art, Finds, and Refurbished Gems.
                 </h1>
 
@@ -42,3 +42,4 @@ const MainBanner = () => {
 }
 
 export default MainBanner
+

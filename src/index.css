@@ -48,3 +48,8 @@ body {
   transition: all 0.2s ease-in-out;
   color: #7c3aed;
 }
+
+.hero-title-outline {
+  -webkit-text-stroke: 1px #7c3aed;
+  text-shadow: 0 0 1px #7c3aed;
+}
