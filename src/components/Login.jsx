@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import { useAppContext } from "../context/AppContext";
 import toast from "react-hot-toast";
@@ -136,8 +136,8 @@ const Login = ({ closeModal }) => {
   };
 
   return (
-    <div className="fixed top-0 left-0 right-0 bottom-0 flex items-center justify-center bg-black/50">
-      <div className="bg-white p-8 rounded shadow-md w-80">
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 p-4 overflow-y-auto">
+      <div className="relative z-[10000] bg-white p-8 rounded shadow-md w-80 max-w-full">
         <h2 className="text-xl font-bold mb-4">
           {mode === "login" && "Login"}
           {mode === "register" && "Sign Up"}
@@ -300,3 +300,4 @@ const Login = ({ closeModal }) => {
 };
 
 export default Login;
+
