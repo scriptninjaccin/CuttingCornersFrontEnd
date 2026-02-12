@@ -15,7 +15,7 @@ const MainBanner = () => {
             <img src={assets.main_banner_bg_sm} alt="Main Banner" className="w-full md:hidden" />
 
             <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center text-white px-4 sm:px-6 md:px-12 w-full">
-                <h1 className="text-3xl sm:text-4xl md:text-6xl font-bold mb-6 leading-tight text-primary-dull animate-typing">
+                <h1 className="text-3xl sm:text-4xl md:text-6xl font-bold mb-6 leading-tight text-primary-dull animate-typing drop-shadow-md">
                     Discover Art, Finds, and Refurbished Gems.
                 </h1>
 
@@ -29,7 +29,7 @@ const MainBanner = () => {
                     </button>
 
                     <button
-                        className="group flex items-center gap-2 px-9 py-3 cursor-pointer hover:text-primary text-black transition-all rounded hidden md:flex"
+                        className="group flex items-center gap-2 px-9 py-3 cursor-pointer text-gray-900 bg-white/95 border border-white shadow-md hover:bg-white transition-all rounded hidden md:flex"
                         onClick={() => scrollToSection('highlights-section')}
                     >
                         Explore Highlights
