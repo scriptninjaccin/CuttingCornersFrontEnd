@@ -1,63 +1,68 @@
 
 
-
 import React, { useEffect, useState } from 'react';
 import { useAppContext } from '../context/AppContext';
 import axios from 'axios';
 import { formatDistanceToNow } from 'date-fns';
 
+const extractProduct = (data) => {
+  if (!data) return {};
+  if (data.product) return data.product;
+  if (data.data?.product) return data.data.product;
+  if (data.data && !Array.isArray(data.data)) return data.data;
+  return data;
+};
 
 const MyOrders = () => {
   const [myOrders, setMyOrders] = useState([]);
-  const [loading, setLoading] = useState(false); 
+  const [loading, setLoading] = useState(false);
   const { currency, user } = useAppContext();
 
-const fetchOrders = async () => {
-  try {
-    setLoading(true);
+  const fetchOrders = async () => {
+    try {
+      setLoading(true);
 
-    // 1️⃣ Fetch user orders
-    const { data: ordersData } = await axios.get("/order/user");
-    if (!ordersData?.orders) return setMyOrders([]);
+      const { data: ordersData } = await axios.get('/order/user');
+      if (!ordersData?.orders) return setMyOrders([]);
 
-    const orders = ordersData.orders;
+      const orders = ordersData.orders;
 
-    // 2️⃣ For each order, fetch product details
-    const enrichedOrders = await Promise.all(
-      orders.map(async order => {
-        const productsWithDetails = await Promise.all(
-          order.products.map(async item => {
-            try {
-              const { data: productData } = await axios.get(
-                `/products/${item.category}/${item.price}/${item.productId}`
-              );
-              return {
-                ...item,
-                product: productData
-              };
-            } catch (err) {
-              console.error(`Failed to fetch product ${item.productId}`, err);
-              return { ...item, product: {} }; // fallback
-            }
-          })
-        );
-        console.log('productsWithDetails',productsWithDetails)
+      const enrichedOrders = await Promise.all(
+        orders.map(async (order) => {
+          const productsWithDetails = await Promise.all(
+            order.products.map(async (item) => {
+              try {
+                const lookupPrice = item.unitPrice ?? item.price ?? 0;
+                const { data: productData } = await axios.get(
+                  `/products/${item.category}/${lookupPrice}/${item.productId}`,
+                );
 
-        return {
-          ...order,
-          products: productsWithDetails
-        };
-      })
-    );
+                const product = extractProduct(productData);
+                return {
+                  ...item,
+                  product,
+                };
+              } catch (err) {
+                console.error(`Failed to fetch product ${item.productId}`, err);
+                return { ...item, product: {} };
+              }
+            }),
+          );
 
-    setMyOrders(enrichedOrders);
-  } catch (error) {
-    console.error("Error fetching orders:", error);
-  } finally {
-    setLoading(false);
-  }
-};
+          return {
+            ...order,
+            products: productsWithDetails,
+          };
+        }),
+      );
 
+      setMyOrders(enrichedOrders);
+    } catch (error) {
+      console.error('Error fetching orders:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
     if (user) {
@@ -77,7 +82,7 @@ const fetchOrders = async () => {
     return (
       <div className="mt-20 flex flex-col items-center justify-center text-center gap-4">
         <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
-          <p className="text-xl font-semibold text-gray-500 animate-pulse">
+        <p className="text-xl font-semibold text-gray-500 animate-pulse">
           Fetching orders...
         </p>
       </div>
@@ -108,29 +113,35 @@ const fetchOrders = async () => {
             <span>{formatDistanceToNow(new Date(order.updatedAt), { addSuffix: true })}</span>
           </div>
 
-          {order.products.map((item, idx) => (
-            <div key={idx} className="flex flex-col md:flex-row md:items-center justify-between gap-6 mt-6 p-4 rounded bg-gray-50">
-              <div className="flex items-center gap-4">
-                <div className="bg-primary/10 p-3 rounded-lg">
-                  <img src={item.product.images?.[0]} alt={item.product.name} className="w-16 h-16 object-cover rounded" />
+          {order.products.map((item, idx) => {
+            const quantity = Number(item.quantity || 0);
+            const unitPrice = Number(item.unitPrice ?? item.price ?? 0);
+            const lineTotal = Number(item.lineTotal ?? unitPrice * quantity);
+
+            return (
+              <div key={idx} className="flex flex-col md:flex-row md:items-center justify-between gap-6 mt-6 p-4 rounded bg-gray-50">
+                <div className="flex items-center gap-4">
+                  <div className="bg-primary/10 p-3 rounded-lg">
+                    <img src={item.product.images?.[0]} alt={item.product.name} className="w-16 h-16 object-cover rounded" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold">{item.product.name || item.name || 'Product'}</h3>
+                    <p className="text-xs text-gray-500">Category: {item.category}</p>
+                  </div>
                 </div>
-                <div>
-                  <h3 className="text-lg font-semibold">{item.product.name}</h3>
-                  <p className="text-xs text-gray-500">Category: {item.category}</p>
+
+                <div className="flex flex-col gap-1 justify-center md:ml-8 mb-4 md:mb-0 opacity-50">
+                  <p>Quantity: {quantity}</p>
+                  <p>Status: {order.status}</p>
+                  <p>Date: {new Date(order.updatedAt).toLocaleDateString('en-IN')}</p>
+                </div>
+
+                <div className="text-primary text-lg font-bold">
+                  Amount: {currency}{lineTotal.toFixed(2)}
                 </div>
               </div>
-
-              <div className="flex flex-col gap-1 justify-center md:ml-8 mb-4 md:mb-0 opacity-50">
-                <p>Quantity: {item.quantity || 1}</p>
-                <p>Status: {order.status}</p>
-                <p>Date: {new Date(order.updatedAt).toLocaleDateString('en-IN')}</p>
-              </div>
-
-              <div className="text-primary text-lg font-bold">
-                Amount: {currency}{item.price * item.quantity}
-              </div>    
-            </div>
-          ))}
+            );
+          })}
         </div>
       ))}
     </div>
@@ -138,5 +149,4 @@ const fetchOrders = async () => {
 };
 
 export default MyOrders;
-
 
