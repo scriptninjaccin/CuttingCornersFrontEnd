@@ -5,6 +5,9 @@ import toast from "react-hot-toast";
 import axios from "axios";
 import { getCategoryCandidates } from "../utils/categoryMap";
 
+const PROMO_VALIDATE_ENDPOINT =
+  import.meta.env.VITE_PROMO_VALIDATE_ENDPOINT || "/promo/validate";
+
 const extractProduct = (data) => {
   if (!data) return null;
   if (data.product) return data.product;
@@ -13,12 +16,27 @@ const extractProduct = (data) => {
   return data;
 };
 
+const extractDiscountAmount = (data) => {
+  const candidates = [
+    data?.discountAmount,
+    data?.discount,
+    data?.data?.discountAmount,
+    data?.data?.discount,
+  ];
+
+  const value = candidates.find((item) => Number.isFinite(Number(item)));
+  return value != null ? Number(value) : 0;
+};
+
 const Cart = () => {
   const [showAddress, setShowAddress] = useState(false);
   const [cartArray, setCartArray] = useState([]);
   const [addresses, setAddresses] = useState([]);
   const [selectedAddress, setSelectedAddress] = useState(null);
   const [paymentOption, setPaymentOption] = useState("COD");
+  const [promoInput, setPromoInput] = useState("");
+  const [appliedPromo, setAppliedPromo] = useState(null);
+  const [isApplyingPromo, setIsApplyingPromo] = useState(false);
 
   const {
     cartItems,
@@ -32,6 +50,14 @@ const Cart = () => {
     setCartItems,
     setShowUserLogin,
   } = useAppContext();
+
+  const subtotal = getCartAmount();
+  const taxAmount = Number((subtotal * 0.02).toFixed(2));
+  const preDiscountTotal = Number((subtotal + taxAmount).toFixed(2));
+  const discountAmount = Number(
+    Math.min(preDiscountTotal, Number(appliedPromo?.discountAmount || 0)).toFixed(2),
+  );
+  const finalTotal = Number(Math.max(0, preDiscountTotal - discountAmount).toFixed(2));
 
   const getCart = useCallback(async () => {
     const items = Object.entries(cartItems);
@@ -95,6 +121,76 @@ const Cart = () => {
     }
   };
 
+  const applyPromoCode = async () => {
+    const normalized = promoInput.trim().toUpperCase();
+
+    if (!normalized) {
+      toast.error("Enter a promo code");
+      return;
+    }
+
+    if (subtotal <= 0) {
+      toast.error("Add items to cart before applying promo");
+      return;
+    }
+
+    if (isApplyingPromo) return;
+
+    const items = cartArray.map((item) => ({
+      productId: item.productId,
+      quantity: item.quantity,
+      category: item.category,
+      price: item.price,
+    }));
+
+    setIsApplyingPromo(true);
+
+    try {
+      const { data } = await axios.post(PROMO_VALIDATE_ENDPOINT, {
+        code: normalized,
+        items,
+        subtotal,
+        tax: taxAmount,
+        totalBeforeDiscount: preDiscountTotal,
+      });
+
+      if (data?.success === false) {
+        toast.error(data?.message || "Invalid promo code");
+        return;
+      }
+
+      const serverDiscount = extractDiscountAmount(data);
+      if (serverDiscount <= 0) {
+        toast.error(data?.message || "Promo code is not applicable");
+        return;
+      }
+
+      setAppliedPromo({
+        code: normalized,
+        promoId: data?.promoId || data?.id || data?.data?.promoId || null,
+        discountAmount: Number(serverDiscount.toFixed(2)),
+        label: data?.label || data?.data?.label || null,
+      });
+      setPromoInput("");
+      toast.success(data?.message || `Promo ${normalized} applied`);
+    } catch (error) {
+      if (error?.response?.status === 404) {
+        toast.error(
+          `Promo endpoint not found (${PROMO_VALIDATE_ENDPOINT}). Configure VITE_PROMO_VALIDATE_ENDPOINT.`,
+        );
+      } else {
+        toast.error(error?.response?.data?.message || "Failed to apply promo code");
+      }
+    } finally {
+      setIsApplyingPromo(false);
+    }
+  };
+
+  const removePromoCode = () => {
+    setAppliedPromo(null);
+    toast.success("Promo removed");
+  };
+
   const placeOrder = async () => {
     if (!user) {
       toast.error("Please login to place order");
@@ -125,13 +221,28 @@ const Cart = () => {
       if (paymentOption === "COD") {
         ({ data } = await axios.post("/order/cod", {
           products,
-          totalPrice: Number((getCartAmount() * 1.02).toFixed(2)),
+          subtotal,
+          taxAmount,
+          preDiscountTotal,
+          discountAmount,
+          finalTotal,
+          totalPrice: finalTotal,
           addressId: selectedAddress.addressId,
+          promoCode: appliedPromo?.code || null,
+          promoId: appliedPromo?.promoId || null,
         }));
       } else {
         ({ data } = await axios.post("/order/stripe", {
           items: products,
           addressId: selectedAddress.addressId,
+          subtotal,
+          taxAmount,
+          preDiscountTotal,
+          discountAmount,
+          finalTotal,
+          totalPrice: finalTotal,
+          promoCode: appliedPromo?.code || null,
+          promoId: appliedPromo?.promoId || null,
         }));
 
         if (data?.success) {
@@ -149,6 +260,7 @@ const Cart = () => {
         });
 
         setCartItems({});
+        setAppliedPromo(null);
         navigate("/my-orders");
       } else {
         toast.error("Something went wrong");
@@ -166,6 +278,20 @@ const Cart = () => {
   useEffect(() => {
     getUserAddress();
   }, [user]);
+
+  useEffect(() => {
+    if (appliedPromo && cartArray.length === 0) {
+      setAppliedPromo(null);
+    }
+  }, [appliedPromo, cartArray.length]);
+
+  useEffect(() => {
+    if (appliedPromo) {
+      setAppliedPromo(null);
+      toast("Cart updated. Re-apply promo code.");
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [cartItems]);
 
   return (
     <div className="flex flex-col md:flex-row mt-16 gap-6">
@@ -326,6 +452,38 @@ const Cart = () => {
                 <option value="COD">Cash On Delivery</option>
                 <option value="Online">Online Payment</option>
               </select>
+
+              <p className="text-sm font-medium uppercase mt-6">Promo Code</p>
+              {!appliedPromo ? (
+                <div className="flex items-center gap-2 mt-2">
+                  <input
+                    value={promoInput}
+                    onChange={(e) => setPromoInput(e.target.value)}
+                    placeholder="Enter code"
+                    className="flex-1 border bg-white px-3 py-2"
+                  />
+                  <button
+                    onClick={applyPromoCode}
+                    disabled={isApplyingPromo}
+                    className="px-3 py-2 bg-primary text-white rounded hover:bg-primary/90 disabled:opacity-60 disabled:cursor-not-allowed"
+                  >
+                    {isApplyingPromo ? "Applying..." : "Apply"}
+                  </button>
+                </div>
+              ) : (
+                <div className="mt-2 flex items-center justify-between bg-green-50 border border-green-200 px-3 py-2 rounded">
+                  <p className="text-sm text-green-700">
+                    {appliedPromo.code} applied
+                    {appliedPromo.label ? ` (${appliedPromo.label})` : ""}
+                  </p>
+                  <button
+                    onClick={removePromoCode}
+                    className="text-xs text-red-500 hover:underline"
+                  >
+                    Remove
+                  </button>
+                </div>
+              )}
             </div>
 
             <hr />
@@ -335,7 +493,7 @@ const Cart = () => {
                 <span>Price</span>
                 <span>
                   {currency}
-                  {getCartAmount().toFixed(2)}
+                  {subtotal.toFixed(2)}
                 </span>
               </p>
 
@@ -343,15 +501,25 @@ const Cart = () => {
                 <span>Tax (2%)</span>
                 <span>
                   {currency}
-                  {(getCartAmount() * 0.02).toFixed(2)}
+                  {taxAmount.toFixed(2)}
                 </span>
               </p>
+
+              {discountAmount > 0 && (
+                <p className="flex justify-between text-green-600">
+                  <span>Discount</span>
+                  <span>
+                    -{currency}
+                    {discountAmount.toFixed(2)}
+                  </span>
+                </p>
+              )}
 
               <p className="flex justify-between text-lg font-medium">
                 <span>Total</span>
                 <span>
                   {currency}
-                  {(getCartAmount() * 1.02).toFixed(2)}
+                  {finalTotal.toFixed(2)}
                 </span>
               </p>
             </div>
@@ -372,3 +540,5 @@ const Cart = () => {
 };
 
 export default Cart;
+
+
