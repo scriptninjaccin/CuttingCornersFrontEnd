@@ -102,43 +102,43 @@ export const assets = {
 
 export const categories = [
   {
-    text: "Organic veggies",
+    text: "Original Artwork",
     path: "Vegetables",
     image: organic_vegitable_image,
     bgColor: "#FEF6DA",
   },
   {
-    text: "Fresh Fruits",
+    text: "Refurbished Tech",
     path: "Fruits",
     image: fresh_fruits_image,
     bgColor: "#FEE0E0",
   },
   {
-    text: "Cold Drinks",
+    text: "Vintage Finds",
     path: "Drinks",
     image: bottles_image,
     bgColor: "#F0F5DE",
   },
   {
-    text: "Instant Food",
+    text: "Home Decor",
     path: "Instant",
     image: maggi_image,
     bgColor: "#E1F5EC",
   },
   {
-    text: "Dairy Products",
+    text: "Creative Supplies",
     path: "Dairy",
     image: dairy_product_image,
     bgColor: "#FEE6CD",
   },
   {
-    text: "Bakery & Breads",
+    text: "Collector Picks",
     path: "Bakery",
     image: bakery_image,
     bgColor: "#E0F6FE",
   },
   {
-    text: "Grains & Cereals",
+    text: "Everyday Essentials",
     path: "Grains",
     image: grain_image,
     bgColor: "#F1E3F9",
@@ -150,7 +150,7 @@ export const footerLinks = [
     title: "Quick Links",
     links: [
       { text: "Home", url: "/" },
-      { text: "Offers & Deals", url: "/products" },
+      { text: "Browse Collection", url: "/products" },
       { text: "Contact Us", url: "/contact" },
       { text: "FAQs", url: "/faqs" },
     ],
@@ -175,23 +175,23 @@ export const footerLinks = [
 export const features = [
   {
     icon: delivery_truck_icon,
-    title: "Fastest Delivery",
-    description: "Groceries delivered in under 30 minutes.",
+    title: "Fast Dispatch",
+    description: "Orders are packed and shipped quickly with live updates.",
   },
   {
     icon: leaf_icon,
-    title: "Freshness Guaranteed",
-    description: "Fresh produce straight from the source.",
+    title: "Condition Checked",
+    description: "Art and refurbished items are reviewed before listing.",
   },
   {
     icon: coin_icon,
-    title: "Affordable Prices",
-    description: "Quality groceries at unbeatable prices.",
+    title: "Fair Pricing",
+    description: "Transparent pricing for unique pieces and restored products.",
   },
   {
     icon: trust_icon,
-    title: "Trusted by Thousands",
-    description: "Loved by 10,000+ happy customers.",
+    title: "Trusted Marketplace",
+    description: "Built for buyers who value quality, style, and reliability.",
   },
 ];
 
@@ -836,3 +836,4 @@ export const dummyOrders = [
     updatedAt: "2025-03-25T07:17:13.068Z",
   },
 ];
+

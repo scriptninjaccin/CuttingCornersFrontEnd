@@ -2,24 +2,24 @@ import React, { useState } from "react";
 
 const faqs = [
   {
-    question: "How can I place an order?",
-    answer: "To place an order, browse our products, add them to your cart, and proceed to checkout. You can choose delivery and payment options during checkout.",
+    question: "How do I place an order?",
+    answer: "Browse the collection, add items to your cart, and continue to checkout. Login is required only when you place the order.",
   },
   {
-    question: "Do you offer same-day delivery?",
-    answer: "Yes, we offer same-day delivery for orders placed before 2 PM in select areas. You’ll see the option at checkout if it's available in your location.",
+    question: "What kinds of products do you list?",
+    answer: "Our catalog includes artwork, refurbished items, and other curated products. Inventory updates regularly.",
+  },
+  {
+    question: "Are refurbished products quality checked?",
+    answer: "Yes. Refurbished listings are reviewed for condition and core functionality before being published.",
   },
   {
     question: "What payment methods do you accept?",
-    answer: "We accept all major credit/debit cards, UPI, net banking, and cash on delivery (COD).",
+    answer: "We support major online payment methods, and availability of COD depends on item and location.",
   },
   {
     question: "Can I return or exchange items?",
-    answer: "Yes, perishable items can be returned within 24 hours if damaged or incorrect. Non-perishable goods have a 7-day return window.",
-  },
-  {
-    question: "Is there a minimum order value?",
-    answer: "There's no minimum order value, but free delivery is only available on orders above ₹499.",
+    answer: "Return eligibility depends on the product type and listing policy. Please review the return policy for details.",
   },
 ];
 
@@ -32,7 +32,7 @@ const Faqs = () => {
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-12">
-      <h1 className="text-3xl font-bold text-center mb-8 text-green-700">Frequently Asked Questions</h1>
+      <h1 className="text-3xl font-bold text-center mb-8 text-primary-dull">Frequently Asked Questions</h1>
       <div className="space-y-4">
         {faqs.map((faq, index) => (
           <div

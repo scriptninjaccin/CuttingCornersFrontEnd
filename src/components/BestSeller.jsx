@@ -8,7 +8,7 @@ const BestSeller = () => {
   return (
 
     <div className='mt-16'>
-      <p className="text-2xl font-medium md:text-3xl">Best Sellers</p>
+      <p className="text-2xl font-medium md:text-3xl">Featured Picks</p>
       <motion.div
         initial={{ opacity: 0, y: 50 }}
         whileInView={{ opacity: 1, y: 0 }}
