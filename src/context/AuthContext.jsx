@@ -1,7 +1,9 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import {
+  confirmResetPassword as amplifyConfirmResetPassword,
   confirmSignUp as amplifyConfirmSignUp,
   getCurrentUser,
+  resetPassword as amplifyResetPassword,
   signIn as amplifySignIn,
   signOut as amplifySignOut,
   signUp as amplifySignUp,
@@ -73,6 +75,34 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const requestPasswordReset = async ({ email }) => {
+    try {
+      const data = await amplifyResetPassword({ username: email });
+      return { success: true, data };
+    } catch (error) {
+      return {
+        success: false,
+        message: error?.message || "Failed to send reset code",
+      };
+    }
+  };
+
+  const confirmPasswordReset = async ({ email, code, newPassword }) => {
+    try {
+      await amplifyConfirmResetPassword({
+        username: email,
+        confirmationCode: code,
+        newPassword,
+      });
+      return { success: true };
+    } catch (error) {
+      return {
+        success: false,
+        message: error?.message || "Failed to reset password",
+      };
+    }
+  };
+
   const signOut = async () => {
     try {
       await amplifySignOut();
@@ -84,7 +114,17 @@ export const AuthProvider = ({ children }) => {
 
   return (
     <AuthContext.Provider
-      value={{ user, loading, setUser, signUp, confirmSignUp, signIn, signOut }}
+      value={{
+        user,
+        loading,
+        setUser,
+        signUp,
+        confirmSignUp,
+        signIn,
+        signOut,
+        requestPasswordReset,
+        confirmPasswordReset,
+      }}
     >
       {children}
     </AuthContext.Provider>
