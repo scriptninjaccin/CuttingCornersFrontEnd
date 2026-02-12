@@ -2,33 +2,30 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { assets } from '../assets/assets';
 import { useAppContext } from '../context/AppContext';
+import { useAuth } from '../context/AuthContext';
 import toast from 'react-hot-toast';
 import axios from 'axios';
 
 const Navbar = () => {
   const [open, setOpen] = useState(false);
   const { user, setUser, setShowUserLogin, getCartCount, searchQuery, setSearchQuery } = useAppContext();
+  const { signOut } = useAuth();
   const navigate = useNavigate();
 
-  // Logout function
   const handleLogout = async () => {
     try {
-      const { data } = await axios.get('/user/logout');
-      if (data.success) {
-        toast.success(data.message);
-        setUser(null);
-        navigate('/');
-        setOpen(false);
-      } else {
-        toast.error(data.message);
-      }
+      await signOut();
+      await axios.get('/user/logout').catch(() => null);
+      toast.success('Logged out');
+      setUser(null);
+      navigate('/');
+      setOpen(false);
     } catch (err) {
       console.error('Error in logout:', err);
-      window.location.reload();
+      toast.error('Logout failed');
     }
   };
 
-  // Handle search submission
   const handleSearch = () => {
     const trimmedQuery = searchQuery.trim();
     if (!trimmedQuery) return;
@@ -38,13 +35,10 @@ const Navbar = () => {
 
   return (
     <nav className="flex items-center justify-between px-6 md:px-16 lg:px-24 xl:px-32 py-4 border-b border-gray-300 bg-white sticky top-0 z-50 shadow transition-all">
-
-      {/* Logo */}
       <Link to="/" onClick={() => setOpen(false)}>
         <img src={assets.logo} alt="Logo" className="h-10" />
       </Link>
 
-      {/* Desktop menu */}
       <div className="hidden md:flex items-center gap-8">
         {!user && <Link to="/seller" onClick={() => setOpen(false)}>Seller Login</Link>}
         <Link to="/" onClick={() => setOpen(false)}>Home</Link>
@@ -52,7 +46,6 @@ const Navbar = () => {
         {user && <Link to="/my-orders" onClick={() => setOpen(false)}>My Orders</Link>}
         <Link to="/contact" onClick={() => { setOpen(false); scrollTo(0, 0); }}>Contact</Link>
 
-        {/* Search */}
         <div className="hidden lg:flex items-center text-sm gap-2 border border-gray-300 px-3 rounded-full">
           <input
             type="text"
@@ -70,7 +63,6 @@ const Navbar = () => {
           />
         </div>
 
-        {/* Cart */}
         <div className="relative cursor-pointer" onClick={() => navigate('/cart')}>
           <img src={assets.cart_icon} alt="Cart" className="w-6 opacity-80" />
           <span className="absolute -top-2 -right-3 text-xs text-white bg-primary w-[18px] h-[18px] rounded-full flex items-center justify-center">
@@ -78,7 +70,6 @@ const Navbar = () => {
           </span>
         </div>
 
-        {/* User profile */}
         {!user ? (
           <button
             onClick={() => setShowUserLogin(true)}
@@ -111,7 +102,6 @@ const Navbar = () => {
         )}
       </div>
 
-      {/* Mobile menu button */}
       <div className="flex items-center gap-6 md:hidden">
         <div className="relative cursor-pointer" onClick={() => navigate('/cart')}>
           <img src={assets.cart_icon} alt="Cart" className="w-6 opacity-80" />
@@ -125,7 +115,6 @@ const Navbar = () => {
         </button>
       </div>
 
-      {/* Mobile menu dropdown */}
       <div className={`${open ? 'flex' : 'hidden'} absolute top-[60px] left-0 w-full bg-white shadow-md flex-col items-start gap-4 px-5 py-6 text-base md:hidden transition-all duration-300 z-20`}>
         {!user && <Link to="/seller" onClick={() => setOpen(false)}>Seller Login</Link>}
         <Link to="/" onClick={() => setOpen(false)}>Home</Link>

@@ -6,6 +6,7 @@ import { Toaster } from 'react-hot-toast';
 import Footer from './components/Footer';
 import Login from './components/Login';
 import { useAppContext } from './context/AppContext';
+import { useAuth } from './context/AuthContext';
 import AllProducts from './pages/AllProducts';
 import ProductCategory from './pages/ProductCategory';
 import ProductDetails from './pages/ProductDetails';
@@ -26,26 +27,39 @@ import Contacts from './pages/seller/Contacts';
 import ForgotPassword from './components/ForgotPassword';
 import SellerAdminPanel from './pages/seller/SellerAdminPanel';
 
-
-
-
 const App = () => {
-  const isSellerPath = useLocation().pathname.includes('/seller');
-  const { showUserLogin, isSeller, user } = useAppContext();
+  const location = useLocation();
+  const isSellerPath = location.pathname.includes('/seller');
+  const { showUserLogin, isSeller } = useAppContext();
+  const { user: authUser, loading: authLoading } = useAuth();
+
+  if (authLoading && !isSellerPath) {
+    return (
+      <div className='min-h-screen flex items-center justify-center bg-white text-gray-700'>
+        <p>Checking login...</p>
+      </div>
+    );
+  }
+
+  if (!authUser && !isSellerPath) {
+    return (
+      <div className='text-default min-h-screen text-gray-700 bg-white'>
+        <Login />
+        <Toaster toastOptions={{ duration: 600 }} />
+      </div>
+    );
+  }
+
   return (
     <div className='text-default min-h-screen text-gray-700 bg-white'>
       {isSellerPath ? null : <Navbar />}
       {showUserLogin ? <Login /> : null}
-      <Toaster toastOptions={{
-        duration: 600,
-      }} />
-      {/* <Home/> */}
-      <div className={`${isSellerPath ? "" : "px-6 md:px-16 lg:px-24 xl:px-32"}`}>
+      <Toaster toastOptions={{ duration: 600 }} />
 
+      <div className={`${isSellerPath ? "" : "px-6 md:px-16 lg:px-24 xl:px-32"}`}>
         <Routes>
           <Route path="/" element={<Home />} />
-        
-          {!user && <Route path="/forgot-password" element={< ForgotPassword />} />}
+          {!authUser && <Route path="/forgot-password" element={<ForgotPassword />} />}
           <Route path="/faqs" element={<Faqs />} />
           <Route path="/return-policy" element={<ReturnRefundPolicy />} />
           <Route path="/contact" element={<Contact />} />
@@ -56,8 +70,7 @@ const App = () => {
           <Route path="/add-address" element={<AddAddress />} />
           <Route path="/my-orders" element={<MyOrders />} />
           <Route path="/loader" element={<Loading />} />
-          <Route path="/seller" element={isSeller ? <SellerLayout /> : <SellerLogin />} >
-          {/* <Route path="/seller" element={isSeller ? <SellerAdminPanel /> : <SellerLogin />} > */}
+          <Route path="/seller" element={isSeller ? <SellerLayout /> : <SellerLogin />}>
             <Route index element={isSeller ? <AddProduct /> : null} />
             <Route path='product-list' element={<ProductList />} />
             <Route path='orders' element={<Orders />} />
@@ -65,15 +78,12 @@ const App = () => {
             <Route path='contact' element={<Contacts />} />
           </Route>
           <Route path="*" element={<PageNotFound />} />
-            {/* <Route path="/admin" element={<SellerAdminPanel />} /> */}
         </Routes>
       </div>
 
-     
       {!isSellerPath && <Footer />}
     </div>
   )
 }
 
 export default App
-
