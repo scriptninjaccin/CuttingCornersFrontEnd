@@ -103,43 +103,43 @@ export const assets = {
 export const categories = [
   {
     text: "Original Artwork",
-    path: "Vegetables",
+    path: "original-artwork",
     image: organic_vegitable_image,
     bgColor: "#FEF6DA",
   },
   {
     text: "Refurbished Tech",
-    path: "Fruits",
+    path: "refurbished-tech",
     image: fresh_fruits_image,
     bgColor: "#FEE0E0",
   },
   {
     text: "Vintage Finds",
-    path: "Drinks",
+    path: "vintage-finds",
     image: bottles_image,
     bgColor: "#F0F5DE",
   },
   {
     text: "Home Decor",
-    path: "Instant",
+    path: "home-decor",
     image: maggi_image,
     bgColor: "#E1F5EC",
   },
   {
     text: "Creative Supplies",
-    path: "Dairy",
+    path: "creative-supplies",
     image: dairy_product_image,
     bgColor: "#FEE6CD",
   },
   {
     text: "Collector Picks",
-    path: "Bakery",
+    path: "collector-picks",
     image: bakery_image,
     bgColor: "#E0F6FE",
   },
   {
     text: "Everyday Essentials",
-    path: "Grains",
+    path: "everyday-essentials",
     image: grain_image,
     bgColor: "#F1E3F9",
   },
@@ -200,7 +200,7 @@ export const dummyProducts = [
   {
     _id: "gd46g23h",
     name: "Potato 500g",
-    category: "Vegetables",
+    category: "original-artwork",
     price: 25,
     offerPrice: 20,
     image: [potato_image_1, potato_image_2, potato_image_3, potato_image_4],
@@ -216,7 +216,7 @@ export const dummyProducts = [
   {
     _id: "gd47g34h",
     name: "Tomato 1 kg",
-    category: "Vegetables",
+    category: "original-artwork",
     price: 40,
     offerPrice: 35,
     image: [tomato_image],
@@ -233,7 +233,7 @@ export const dummyProducts = [
   {
     _id: "gd48g45h",
     name: "Carrot 500g",
-    category: "Vegetables",
+    category: "original-artwork",
     price: 30,
     offerPrice: 28,
     image: [carrot_image],
@@ -249,7 +249,7 @@ export const dummyProducts = [
   {
     _id: "gd49g56h",
     name: "Spinach 500g",
-    category: "Vegetables",
+    category: "original-artwork",
     price: 18,
     offerPrice: 15,
     image: [spinach_image_1],
@@ -265,7 +265,7 @@ export const dummyProducts = [
   {
     _id: "gd50g67h",
     name: "Onion 500g",
-    category: "Vegetables",
+    category: "original-artwork",
     price: 22,
     offerPrice: 19,
     image: [onion_image_1],
@@ -283,7 +283,7 @@ export const dummyProducts = [
   {
     _id: "ek51j12k",
     name: "Apple 1 kg",
-    category: "Fruits",
+    category: "refurbished-tech",
     price: 120,
     offerPrice: 110,
     image: [apple_image],
@@ -301,7 +301,7 @@ export const dummyProducts = [
   {
     _id: "ek52j23k",
     name: "Orange 1 kg",
-    category: "Fruits",
+    category: "refurbished-tech",
     price: 80,
     offerPrice: 75,
     image: [orange_image],
@@ -317,7 +317,7 @@ export const dummyProducts = [
   {
     _id: "ek53j34k",
     name: "Banana 1 kg",
-    category: "Fruits",
+    category: "refurbished-tech",
     price: 50,
     offerPrice: 45,
     image: [banana_image_1],
@@ -333,7 +333,7 @@ export const dummyProducts = [
   {
     _id: "ek54j45k",
     name: "Mango 1 kg",
-    category: "Fruits",
+    category: "refurbished-tech",
 
     price: 150,
     offerPrice: 140,
@@ -350,7 +350,7 @@ export const dummyProducts = [
   {
     _id: "ek55j56k",
     name: "Grapes 500g",
-    category: "Fruits",
+    category: "refurbished-tech",
     price: 70,
     offerPrice: 65,
     image: [grapes_image_1],
@@ -368,7 +368,7 @@ export const dummyProducts = [
   {
     _id: "ek56j67k",
     name: "Amul Milk 1L",
-    category: "Dairy",
+    category: "creative-supplies",
     price: 60,
     offerPrice: 55,
     image: [amul_milk_image],
@@ -385,7 +385,7 @@ export const dummyProducts = [
   {
     _id: "ek57j78k",
     name: "Paneer 200g",
-    category: "Dairy",
+    category: "creative-supplies",
     price: 90,
     offerPrice: 85,
     image: [paneer_image],
@@ -401,7 +401,7 @@ export const dummyProducts = [
   {
     _id: "ek58j89k",
     name: "Eggs 12 pcs",
-    category: "Dairy",
+    category: "creative-supplies",
     price: 90,
     offerPrice: 85,
     image: [eggs_image],
@@ -417,7 +417,7 @@ export const dummyProducts = [
   {
     _id: "ek59j90k",
     name: "Paneer 200g",
-    category: "Dairy",
+    category: "creative-supplies",
     price: 90,
     offerPrice: 85,
     image: [paneer_image_2],
@@ -433,7 +433,7 @@ export const dummyProducts = [
   {
     _id: "ek60j01k",
     name: "Cheese 200g",
-    category: "Dairy",
+    category: "creative-supplies",
     price: 140,
     offerPrice: 130,
     image: [cheese_image],
@@ -451,7 +451,7 @@ export const dummyProducts = [
   {
     _id: "ek61j12k",
     name: "Coca-Cola 1.5L",
-    category: "Drinks",
+    category: "vintage-finds",
     price: 80,
     offerPrice: 75,
     image: [coca_cola_image],
@@ -467,7 +467,7 @@ export const dummyProducts = [
   {
     _id: "ek62j23k",
     name: "Pepsi 1.5L",
-    category: "Drinks",
+    category: "vintage-finds",
     price: 78,
     offerPrice: 73,
     image: [pepsi_image],
@@ -483,7 +483,7 @@ export const dummyProducts = [
   {
     _id: "ek63j34k",
     name: "Sprite 1.5L",
-    category: "Drinks",
+    category: "vintage-finds",
     price: 79,
     offerPrice: 74,
     image: [sprite_image_1],
@@ -499,7 +499,7 @@ export const dummyProducts = [
   {
     _id: "ek64j45k",
     name: "Fanta 1.5L",
-    category: "Drinks",
+    category: "vintage-finds",
     price: 77,
     offerPrice: 72,
     image: [fanta_image_1],
@@ -515,7 +515,7 @@ export const dummyProducts = [
   {
     _id: "ek65j56k",
     name: "7 Up 1.5L",
-    category: "Drinks",
+    category: "vintage-finds",
     price: 76,
     offerPrice: 71,
     image: [seven_up_image_1],
@@ -533,7 +533,7 @@ export const dummyProducts = [
   {
     _id: "ek66j67k",
     name: "Basmati Rice 5kg",
-    category: "Grains",
+    category: "everyday-essentials",
     price: 550,
     offerPrice: 520,
     image: [basmati_rice_image],
@@ -549,7 +549,7 @@ export const dummyProducts = [
   {
     _id: "ek67j78k",
     name: "Wheat Flour 5kg",
-    category: "Grains",
+    category: "everyday-essentials",
     price: 250,
     offerPrice: 230,
     image: [wheat_flour_image],
@@ -565,7 +565,7 @@ export const dummyProducts = [
   {
     _id: "ek68j89k",
     name: "Organic Quinoa 500g",
-    category: "Grains",
+    category: "everyday-essentials",
     price: 450,
     offerPrice: 420,
     image: [quinoa_image],
@@ -581,7 +581,7 @@ export const dummyProducts = [
   {
     _id: "ek69j90k",
     name: "Brown Rice 1kg",
-    category: "Grains",
+    category: "everyday-essentials",
     price: 120,
     offerPrice: 110,
     image: [brown_rice_image],
@@ -597,7 +597,7 @@ export const dummyProducts = [
   {
     _id: "ek70j01k",
     name: "Barley 1kg",
-    category: "Grains",
+    category: "everyday-essentials",
     price: 150,
     offerPrice: 140,
     image: [barley_image],
@@ -615,7 +615,7 @@ export const dummyProducts = [
   {
     _id: "bk01a24z",
     name: "Brown Bread 400g",
-    category: "Bakery",
+    category: "collector-picks",
     price: 40,
     offerPrice: 35,
     image: [brown_bread_image],
@@ -631,7 +631,7 @@ export const dummyProducts = [
   {
     _id: "bk02b30y",
     name: "Butter Croissant 100g",
-    category: "Bakery",
+    category: "collector-picks",
     price: 50,
     offerPrice: 45,
     image: [butter_croissant_image],
@@ -647,7 +647,7 @@ export const dummyProducts = [
   {
     _id: "bk03c31x",
     name: "Chocolate Cake 500g",
-    category: "Bakery",
+    category: "collector-picks",
     price: 350,
     offerPrice: 325,
     image: [chocolate_cake_image],
@@ -663,7 +663,7 @@ export const dummyProducts = [
   {
     _id: "bk04d32w",
     name: "Whole Bread 400g",
-    category: "Bakery",
+    category: "collector-picks",
     price: 45,
     offerPrice: 40,
     image: [whole_wheat_bread_image],
@@ -679,7 +679,7 @@ export const dummyProducts = [
   {
     _id: "bk05e33v",
     name: "Vanilla Muffins 6 pcs",
-    category: "Bakery",
+    category: "collector-picks",
     price: 100,
     offerPrice: 90,
     image: [vanilla_muffins_image],
@@ -697,7 +697,7 @@ export const dummyProducts = [
   {
     _id: "in01f25u",
     name: "Maggi Noodles 280g",
-    category: "Instant",
+    category: "home-decor",
 
     price: 55,
     offerPrice: 50,
@@ -714,7 +714,7 @@ export const dummyProducts = [
   {
     _id: "in02g26t",
     name: "Top Ramen 270g",
-    category: "Instant",
+    category: "home-decor",
     price: 45,
     offerPrice: 40,
     image: [top_ramen_image],
@@ -730,7 +730,7 @@ export const dummyProducts = [
   {
     _id: "in03h27s",
     name: "Knorr Cup Soup 70g",
-    category: "Instant",
+    category: "home-decor",
     price: 35,
     offerPrice: 30,
     image: [knorr_soup_image],
@@ -746,7 +746,7 @@ export const dummyProducts = [
   {
     _id: "in04i28r",
     name: "Yippee Noodles 260g",
-    category: "Instant",
+    category: "home-decor",
     price: 50,
     offerPrice: 45,
     image: [yippee_image],
@@ -762,7 +762,7 @@ export const dummyProducts = [
   {
     _id: "in05j29q",
     name: "Oats Noodles 72g",
-    category: "Instant",
+    category: "home-decor",
     price: 40,
     offerPrice: 35,
     image: [maggi_oats_image],
@@ -836,4 +836,5 @@ export const dummyOrders = [
     updatedAt: "2025-03-25T07:17:13.068Z",
   },
 ];
+
 

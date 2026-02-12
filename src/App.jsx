@@ -45,7 +45,7 @@ const App = () => {
           {!authUser && <Route path="/forgot-password" element={<ForgotPassword />} />}
           <Route path="/faqs" element={<Faqs />} />
           <Route path="/return-policy" element={<ReturnRefundPolicy />} />
-          <Route path="/contact" element={<Contact />} />
+          <Route path="/contact" element={authUser ? <Contact /> : <Login />} />
           <Route path="/products" element={<AllProducts />} />
           <Route path="/products/:category" element={<ProductCategory />} />
           <Route path="/products/:category/:price/:productId" element={<ProductDetails />} />
@@ -70,3 +70,4 @@ const App = () => {
 }
 
 export default App
+

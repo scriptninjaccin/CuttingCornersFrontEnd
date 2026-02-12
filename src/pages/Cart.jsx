@@ -1,8 +1,17 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useAppContext } from "../context/AppContext";
 import { assets } from "../assets/assets";
 import toast from "react-hot-toast";
 import axios from "axios";
+import { getCategoryCandidates } from "../utils/categoryMap";
+
+const extractProduct = (data) => {
+  if (!data) return null;
+  if (data.product) return data.product;
+  if (data.data?.product) return data.data.product;
+  if (data.data && !Array.isArray(data.data)) return data.data;
+  return data;
+};
 
 const Cart = () => {
   const [showAddress, setShowAddress] = useState(false);
@@ -24,21 +33,45 @@ const Cart = () => {
     setShowUserLogin,
   } = useAppContext();
 
-  const getCart = async () => {
-    const tempArray = [];
-    for (let productId in cartItems) {
-      const item = cartItems[productId];
-      try {
-        const { data } = await axios.get(
-          `/products/${item.category}/${item.price}/${productId}`
-        );
-        tempArray.push({ ...data, quantity: item.quantity });
-      } catch (error) {
-        console.error("Error fetching product", productId, error);
-      }
+  const getCart = useCallback(async () => {
+    const items = Object.entries(cartItems);
+
+    if (items.length === 0) {
+      setCartArray([]);
+      return;
     }
-    setCartArray(tempArray);
-  };
+
+    const resolvedItems = await Promise.all(
+      items.map(async ([productId, item]) => {
+        const candidates = getCategoryCandidates(item.category);
+
+        for (const category of candidates) {
+          try {
+            const { data } = await axios.get(
+              `/products/${encodeURIComponent(category)}/${encodeURIComponent(item.price)}/${encodeURIComponent(productId)}`,
+            );
+            const product = extractProduct(data);
+
+            if (product) {
+              return {
+                ...product,
+                category: product.category || item.category,
+                quantity: item.quantity,
+                price: item.price,
+                productId: product.productId || product._id || productId,
+              };
+            }
+          } catch {
+            // Try next category candidate.
+          }
+        }
+
+        return null;
+      }),
+    );
+
+    setCartArray(resolvedItems.filter(Boolean));
+  }, [cartItems]);
 
   const getUserAddress = async () => {
     if (!user) {
@@ -128,7 +161,7 @@ const Cart = () => {
 
   useEffect(() => {
     getCart();
-  }, [cartItems]);
+  }, [getCart]);
 
   useEffect(() => {
     getUserAddress();
@@ -155,12 +188,16 @@ const Cart = () => {
           >
             <div className="flex items-center gap-4">
               <div
-                onClick={() => navigate(`/products/${product.category}/${product.productId}`)}
+                onClick={() =>
+                  navigate(
+                    `/products/${product.category}/${product.price}/${product.productId}`,
+                  )
+                }
                 className="cursor-pointer w-24 h-24 flex items-center justify-center border rounded"
               >
                 <img
                   className="max-w-full h-full object-cover"
-                  src={product.images?.[0] || "/placeholder.png"}
+                  src={product.images?.[0] || product.image?.[0] || "/placeholder.png"}
                   alt={product.name}
                 />
               </div>
@@ -186,13 +223,17 @@ const Cart = () => {
                         ))}
                     </select>
                   </div>
-                  <p>Price: {currency}{product.price}</p>
+                  <p>
+                    Price: {currency}
+                    {product.price}
+                  </p>
                 </div>
               </div>
             </div>
 
             <p className="text-center">
-              {currency}{(product.price * product.quantity).toFixed(2)}
+              {currency}
+              {(product.price * product.quantity).toFixed(2)}
             </p>
 
             <button
@@ -292,17 +333,26 @@ const Cart = () => {
             <div className="mt-4 space-y-2">
               <p className="flex justify-between">
                 <span>Price</span>
-                <span>{currency}{getCartAmount().toFixed(2)}</span>
+                <span>
+                  {currency}
+                  {getCartAmount().toFixed(2)}
+                </span>
               </p>
 
               <p className="flex justify-between">
                 <span>Tax (2%)</span>
-                <span>{currency}{(getCartAmount() * 0.02).toFixed(2)}</span>
+                <span>
+                  {currency}
+                  {(getCartAmount() * 0.02).toFixed(2)}
+                </span>
               </p>
 
               <p className="flex justify-between text-lg font-medium">
                 <span>Total</span>
-                <span>{currency}{(getCartAmount() * 1.02).toFixed(2)}</span>
+                <span>
+                  {currency}
+                  {(getCartAmount() * 1.02).toFixed(2)}
+                </span>
               </p>
             </div>
 
@@ -311,9 +361,7 @@ const Cart = () => {
                 onClick={placeOrder}
                 className="w-full py-3 mt-6 bg-primary text-white rounded hover:bg-primary/90"
               >
-                {paymentOption === "COD"
-                  ? "Place Order"
-                  : "Proceed to Checkout"}
+                {paymentOption === "COD" ? "Place Order" : "Proceed to Checkout"}
               </button>
             )}
           </div>

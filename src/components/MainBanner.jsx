@@ -1,8 +1,14 @@
 import React from 'react'
 import { assets } from '../assets/assets'
-import { Link } from 'react-router-dom'
 
 const MainBanner = () => {
+    const scrollToSection = (sectionId) => {
+        const section = document.getElementById(sectionId);
+        if (section) {
+            section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+    };
+
     return (
         <div className="relative">
             <img src={assets.main_banner_bg} alt="Main Banner" className="w-full hidden md:block" />
@@ -14,21 +20,21 @@ const MainBanner = () => {
                 </h1>
 
                 <div className="flex justify-center gap-6 flex-col md:flex-row">
-                    <Link
+                    <button
                         className="group flex items-center gap-2 px-7 py-3 bg-primary hover:bg-primary-dull text-white transition-all rounded cursor-pointer mb-4 md:mb-0 sm:mb-4"
-                        to="/products"
+                        onClick={() => scrollToSection('collections-section')}
                     >
-                        Browse Collection
+                        Browse Collections
                         <img src={assets.black_arrow_icon} alt="Arrow" className="md:hidden transition-all group-focus:translate-x-1" />
-                    </Link>
+                    </button>
 
-                    <Link
+                    <button
                         className="group flex items-center gap-2 px-9 py-3 cursor-pointer hover:text-primary text-black transition-all rounded hidden md:flex"
-                        to="/products"
+                        onClick={() => scrollToSection('highlights-section')}
                     >
-                        Explore Featured Items
+                        Explore Highlights
                         <img src={assets.black_arrow_icon} alt="Arrow" className="transition-all group-focus:translate-x-1" />
-                    </Link>
+                    </button>
                 </div>
             </div>
         </div>

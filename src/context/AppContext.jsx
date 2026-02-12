@@ -78,19 +78,10 @@ export const AppContextProvider = ({ children }) => {
     };
   };
 
-  const fetchSellerStatus = async () => {
-    try {
-      const { data } = await axios.get("/seller/is-auth");
-      setIsSeller(Boolean(data?.success));
-    } catch {
-      setIsSeller(false);
-    }
-  };
-
   const getCartCount = () => {
     let totalCount = 0;
 
-    for (let productId in cartItems) {
+    for (const productId in cartItems) {
       totalCount += cartItems[productId].quantity;
     }
 
@@ -100,7 +91,7 @@ export const AppContextProvider = ({ children }) => {
   const getCartAmount = () => {
     let totalPrice = 0;
 
-    for (let productId in cartItems) {
+    for (const productId in cartItems) {
       const item = cartItems[productId];
       if (item && item.quantity > 0 && item.price != null) {
         totalPrice += item.price * item.quantity;
@@ -111,7 +102,7 @@ export const AppContextProvider = ({ children }) => {
   };
 
   const prepareCartPayload = (items) => {
-    const products = Object.entries(items).map(([productId, item]) => ({
+    const productsPayload = Object.entries(items).map(([productId, item]) => ({
       productId,
       quantity: item.quantity,
       price: item.price,
@@ -123,28 +114,16 @@ export const AppContextProvider = ({ children }) => {
       0,
     );
 
-    return { products, totalPrice };
-  };
-
-  const fetchUser = async () => {
-    try {
-      const { data } = await axios.get("/user/is-auth");
-      if (data?.success && data.user) {
-        setUser(data.user);
-      } else {
-        setUser(getAuthFallbackUser());
-      }
-    } catch {
-      setUser(getAuthFallbackUser());
-    }
+    return { products: productsPayload, totalPrice };
   };
 
   const fetchCartFromBackend = async () => {
     try {
       const { data } = await axios.get("/cart/");
       const backendCart = {};
+      const backendProducts = Array.isArray(data?.products) ? data.products : [];
 
-      data.products.forEach((item) => {
+      backendProducts.forEach((item) => {
         if (item.productId) {
           backendCart[item.productId] = {
             quantity: item.quantity,
@@ -183,27 +162,32 @@ export const AppContextProvider = ({ children }) => {
   const fetchProducts = async () => {
     try {
       const { data } = await axios.get("/product/list");
-      if (data?.success) {
-        setProducts(data?.products);
-      } else {
-        toast.error(data.message);
-      }
+      const backendProducts = Array.isArray(data)
+        ? data
+        : data?.products || data?.data || [];
+
+      setProducts(Array.isArray(backendProducts) ? backendProducts : []);
     } catch (error) {
       console.error("Error fetching products:", error);
+      setProducts([]);
     }
   };
 
   const addToCart = (product) => {
+    const id = product.productId || product._id;
+    if (!id) return;
+
     const newCartItems = structuredClone(cartItems);
-    if (newCartItems[product.productId]) {
-      newCartItems[product.productId].quantity++;
+    if (newCartItems[id]) {
+      newCartItems[id].quantity++;
     } else {
-      newCartItems[product.productId] = {
+      newCartItems[id] = {
         quantity: 1,
         category: product.category,
         price: product.price,
       };
     }
+
     setCartItems(newCartItems);
   };
 
@@ -230,7 +214,6 @@ export const AppContextProvider = ({ children }) => {
 
   useEffect(() => {
     fetchProducts();
-    fetchSellerStatus();
   }, []);
 
   useEffect(() => {
@@ -243,7 +226,6 @@ export const AppContextProvider = ({ children }) => {
 
     const fallbackUser = getAuthFallbackUser();
     setUser((prev) => prev || fallbackUser);
-    fetchUser();
   }, [authUser, authLoading]);
 
   useEffect(() => {

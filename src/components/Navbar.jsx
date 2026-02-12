@@ -33,6 +33,15 @@ const Navbar = () => {
     scrollTo(0, 0);
   };
 
+  const goToHomeSection = (sectionId) => {
+    navigate('/');
+    setOpen(false);
+
+    setTimeout(() => {
+      document.getElementById(sectionId)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 80);
+  };
+
   return (
     <nav className="flex items-center justify-between px-6 md:px-16 lg:px-24 xl:px-32 py-4 border-b border-gray-300 bg-white sticky top-0 z-50 shadow transition-all">
       <Link to="/" onClick={() => setOpen(false)}>
@@ -42,9 +51,9 @@ const Navbar = () => {
       <div className="hidden md:flex items-center gap-8">
         {!user && <Link to="/seller" onClick={() => setOpen(false)}>Seller Login</Link>}
         <Link to="/" onClick={() => setOpen(false)}>Home</Link>
-        <Link to="/products" onClick={() => setOpen(false)}>All Products</Link>
+        <button onClick={() => goToHomeSection('highlights-section')} className="cursor-pointer">Highlights</button>
         {user && <Link to="/my-orders" onClick={() => setOpen(false)}>My Orders</Link>}
-        <Link to="/contact" onClick={() => { setOpen(false); scrollTo(0, 0); }}>Contact</Link>
+        {user && <Link to="/contact" onClick={() => { setOpen(false); scrollTo(0, 0); }}>Contact</Link>}
 
         <div className="hidden lg:flex items-center text-sm gap-2 border border-gray-300 px-3 rounded-full">
           <input
@@ -118,9 +127,9 @@ const Navbar = () => {
       <div className={`${open ? 'flex' : 'hidden'} absolute top-[60px] left-0 w-full bg-white shadow-md flex-col items-start gap-4 px-5 py-6 text-base md:hidden transition-all duration-300 z-20`}>
         {!user && <Link to="/seller" onClick={() => setOpen(false)}>Seller Login</Link>}
         <Link to="/" onClick={() => setOpen(false)}>Home</Link>
-        <Link to="/products" onClick={() => setOpen(false)}>All Products</Link>
+        <button onClick={() => goToHomeSection('highlights-section')} className="cursor-pointer">Highlights</button>
         {user && <Link to="/my-orders" onClick={() => setOpen(false)}>My Orders</Link>}
-        <Link to="/contact" onClick={() => setOpen(false)}>Contact</Link>
+        {user && <Link to="/contact" onClick={() => setOpen(false)}>Contact</Link>}
         {!user ? (
           <button
             onClick={() => { setShowUserLogin(true); setOpen(false); }}
@@ -142,3 +151,4 @@ const Navbar = () => {
 };
 
 export default Navbar;
+
